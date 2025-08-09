@@ -5,7 +5,8 @@
       "Bash(npm:*)",
       "Bash(curl:*)",
       "Bash(pkill:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

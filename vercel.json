@@ -6,11 +6,5 @@
     "app/api/email/send/route.ts": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "EMAIL_PROVIDER": "@email_provider",
-    "RESEND_API_KEY": "@resend_api_key",
-    "JWT_SECRET": "@jwt_secret",
-    "DEFAULT_FROM_EMAIL": "@default_from_email"
   }
 }
