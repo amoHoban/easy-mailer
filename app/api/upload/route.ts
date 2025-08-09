@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentProcessor } from '@/lib/documentProcessor';
-import { templateStore } from '@/lib/templateStore';
-import { TemplateEncoder } from '@/lib/templateEncoder';
+import { TemplateStorage } from '@/lib/storage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,25 +47,25 @@ export async function POST(request: NextRequest) {
       file.name
     );
 
-    // Store template (for backward compatibility)
-    templateStore.set(processedTemplate);
-
-    // Create shareable URL
-    const encoded = TemplateEncoder.encode(processedTemplate);
+    // Store template with short ID
+    const shortId = await TemplateStorage.store(processedTemplate);
+    
+    // Create shareable URL with short ID
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
       `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`;
-    const shareableUrl = `${baseUrl}/render/${encoded}`;
+    const shareableUrl = `${baseUrl}/render/${shortId}`;
 
-    // Return full template data with shareable URL
+    // Return template data with short ID
     return NextResponse.json({
-      id: processedTemplate.id,
+      id: shortId,
       html: processedTemplate.html,
       plainText: processedTemplate.plainText,
       variables: processedTemplate.variables,
       originalFileName: processedTemplate.originalFileName,
       createdAt: processedTemplate.createdAt,
       shareableUrl,
-      encodedId: encoded,
+      shortId,
+      encodedId: shortId, // For backward compatibility
     });
   } catch (error) {
     console.error('Upload error:', error);

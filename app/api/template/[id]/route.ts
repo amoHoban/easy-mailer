@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { templateStore } from '@/lib/templateStore';
+import { TemplateStorage } from '@/lib/storage';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const template = templateStore.get(params.id);
+  try {
+    const template = await TemplateStorage.retrieve(params.id);
 
-  if (!template) {
+    if (!template) {
+      return NextResponse.json(
+        { error: 'Template not found or expired' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(template);
+  } catch (error) {
+    console.error('Failed to retrieve template:', error);
     return NextResponse.json(
-      { error: 'Template not found' },
-      { status: 404 }
+      { error: 'Failed to retrieve template' },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json(template);
 }

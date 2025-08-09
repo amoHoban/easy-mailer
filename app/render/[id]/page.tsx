@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { TemplateEncoder } from '@/lib/templateEncoder';
-import { ProcessedTemplate, TemplateVariable } from '@/types';
+import { ProcessedTemplate } from '@/types';
 import VariableForm from '@/components/VariableForm';
 import EmailPreview from '@/components/EmailPreview';
 import ActionButtons from '@/components/ActionButtons';
@@ -20,32 +19,35 @@ export default function RenderPage() {
   const [shareUrl, setShareUrl] = useState<string>('');
 
   useEffect(() => {
-    const decodeTemplate = () => {
+    const fetchTemplate = async () => {
       try {
-        const encoded = params.id as string;
-        const decoded = TemplateEncoder.decode(encoded);
+        const templateId = params.id as string;
         
-        if (decoded) {
-          setTemplate(decoded);
-          setRenderedContent(decoded.html);
+        // Fetch template from API
+        const response = await fetch(`/api/template/${templateId}`);
+        
+        if (response.ok) {
+          const templateData = await response.json();
+          setTemplate(templateData);
+          setRenderedContent(templateData.html);
           
           // Set share URL
           const url = window.location.href;
           setShareUrl(url);
         } else {
-          toast.error('Invalid or corrupted template link');
-          router.push('/');
+          toast.error('Template not found or expired');
+          setTimeout(() => router.push('/'), 2000);
         }
       } catch (error) {
-        console.error('Failed to decode template:', error);
+        console.error('Failed to load template:', error);
         toast.error('Failed to load template');
-        router.push('/');
+        setTimeout(() => router.push('/'), 2000);
       } finally {
         setLoading(false);
       }
     };
 
-    decodeTemplate();
+    fetchTemplate();
   }, [params.id, router]);
 
   useEffect(() => {
