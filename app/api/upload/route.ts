@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentProcessor } from '@/lib/documentProcessor';
 import { templateStore } from '@/lib/templateStore';
+import { TemplateEncoder } from '@/lib/templateEncoder';
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,7 +51,13 @@ export async function POST(request: NextRequest) {
     // Store template (for backward compatibility)
     templateStore.set(processedTemplate);
 
-    // Return full template data for client-side storage
+    // Create shareable URL
+    const encoded = TemplateEncoder.encode(processedTemplate);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+      `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`;
+    const shareableUrl = `${baseUrl}/render/${encoded}`;
+
+    // Return full template data with shareable URL
     return NextResponse.json({
       id: processedTemplate.id,
       html: processedTemplate.html,
@@ -58,6 +65,8 @@ export async function POST(request: NextRequest) {
       variables: processedTemplate.variables,
       originalFileName: processedTemplate.originalFileName,
       createdAt: processedTemplate.createdAt,
+      shareableUrl,
+      encodedId: encoded,
     });
   } catch (error) {
     console.error('Upload error:', error);

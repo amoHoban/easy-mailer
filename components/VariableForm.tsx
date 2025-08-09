@@ -44,7 +44,6 @@ export default function VariableForm({ variables, onVariablesChange }: VariableF
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Fill in Template Variables</h3>
       <div className="space-y-3">
         {variables.map(variable => (
           <div key={variable.name}>
@@ -57,8 +56,10 @@ export default function VariableForm({ variables, onVariablesChange }: VariableF
               value={values[variable.name] || ''}
               onChange={(e) => handleChange(variable.name, e.target.value)}
               className={`
-                input-field
-                ${errors[variable.name] ? 'border-red-500 focus:ring-red-500' : ''}
+                w-full px-3 py-2.5 border rounded-lg text-base
+                focus:ring-2 focus:ring-primary focus:border-transparent
+                transition-all duration-200
+                ${errors[variable.name] ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
               `}
               placeholder={`Enter ${variable.name}${variable.required ? ' (required)' : ''}`}
             />
@@ -68,9 +69,11 @@ export default function VariableForm({ variables, onVariablesChange }: VariableF
           </div>
         ))}
       </div>
-      <div className="text-sm text-gray-500 mt-4">
-        <p>* Required fields must be filled</p>
-      </div>
+      {variables.some(v => v.required) && (
+        <div className="text-xs text-gray-500 mt-4">
+          <p>* Required fields must be filled</p>
+        </div>
+      )}
     </div>
   );
 }
