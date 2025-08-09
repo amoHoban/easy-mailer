@@ -29,11 +29,13 @@ export default function Home() {
   };
 
   const fetchRenderedContent = async (templateId: string, variables: Record<string, string>) => {
+    if (!template) return;
+    
     try {
-      const response = await fetch(`/api/template/${templateId}/render`, {
+      const response = await fetch('/api/template/render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variables }),
+        body: JSON.stringify({ template, variables }),
       });
 
       if (response.ok) {
@@ -93,6 +95,7 @@ export default function Home() {
                   <EmailPreview 
                     templateId={template.id}
                     variables={variableValues}
+                    template={template}
                   />
                 </div>
 
@@ -103,6 +106,7 @@ export default function Home() {
                     templateId={template.id}
                     variables={variableValues}
                     hasRequiredVariables={hasRequiredVariables}
+                    template={template}
                   />
                 </div>
               </>

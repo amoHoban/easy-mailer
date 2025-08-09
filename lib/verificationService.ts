@@ -14,7 +14,8 @@ class VerificationService {
     email: string,
     templateId: string,
     variables: Record<string, string>,
-    subject: string
+    subject: string,
+    templateData?: any
   ): string {
     const token = jwt.sign(
       { 
@@ -26,7 +27,7 @@ class VerificationService {
       { expiresIn: '1h' }
     );
 
-    const verification: EmailVerification = {
+    const verification: EmailVerification & { templateData?: any } = {
       token,
       email,
       templateId,
@@ -34,6 +35,7 @@ class VerificationService {
       subject,
       expiresAt: new Date(Date.now() + 3600000),
       verified: false,
+      templateData,
     };
 
     this.verifications.set(token, verification);

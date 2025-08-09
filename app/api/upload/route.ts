@@ -47,18 +47,17 @@ export async function POST(request: NextRequest) {
       file.name
     );
 
-    // Store template
+    // Store template (for backward compatibility)
     templateStore.set(processedTemplate);
 
-    // Return template info
+    // Return full template data for client-side storage
     return NextResponse.json({
       id: processedTemplate.id,
+      html: processedTemplate.html,
+      plainText: processedTemplate.plainText,
       variables: processedTemplate.variables,
       originalFileName: processedTemplate.originalFileName,
-      preview: {
-        html: processedTemplate.html.substring(0, 500),
-        plainText: processedTemplate.plainText.substring(0, 500),
-      },
+      createdAt: processedTemplate.createdAt,
     });
   } catch (error) {
     console.error('Upload error:', error);

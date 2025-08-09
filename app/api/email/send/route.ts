@@ -6,7 +6,7 @@ import { documentProcessor } from '@/lib/documentProcessor';
 
 export async function POST(request: NextRequest) {
   try {
-    const { templateId, variables, to, subject } = await request.json();
+    const { templateId, template, variables, to, subject } = await request.json();
 
     if (!to || !subject) {
       return NextResponse.json(
@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const template = templateStore.get(templateId);
-    if (!template) {
+    // Try to get template from store first (backward compatibility), then use provided template
+    const templateData = templateStore.get(templateId) || template;
+    if (!templateData) {
       return NextResponse.json(
         { error: 'Template not found' },
         { status: 404 }
@@ -24,9 +25,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for missing required variables
-    const missingRequired = template.variables
-      .filter(v => v.required && !variables[v.name])
-      .map(v => v.name);
+    const missingRequired = templateData.variables
+      .filter((v: any) => v.required && !variables[v.name])
+      .map((v: any) => v.name);
 
     if (missingRequired.length > 0) {
       return NextResponse.json(
@@ -38,8 +39,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create verification token
-    const token = verificationService.createVerification(to, templateId, variables, subject);
+    // Create verification token with template data
+    const token = verificationService.createVerification(to, templateId, variables, subject, templateData);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host')}`;
     const verificationUrl = `${baseUrl}/api/email/verify/${token}`;
     

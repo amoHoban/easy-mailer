@@ -8,13 +8,15 @@ interface ActionButtonsProps {
   variables: Record<string, string>;
   renderedHtml: string;
   hasRequiredVariables: boolean;
+  template?: any;
 }
 
 export default function ActionButtons({ 
   templateId, 
   variables, 
   renderedHtml,
-  hasRequiredVariables 
+  hasRequiredVariables,
+  template 
 }: ActionButtonsProps) {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState('');
@@ -57,6 +59,7 @@ export default function ActionButtons({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           templateId,
+          template,
           variables,
           to: email,
           subject,

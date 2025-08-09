@@ -5,26 +5,29 @@ import { useState, useEffect } from 'react';
 interface EmailPreviewProps {
   templateId: string;
   variables: Record<string, string>;
+  template?: any;
 }
 
-export default function EmailPreview({ templateId, variables }: EmailPreviewProps) {
+export default function EmailPreview({ templateId, variables, template }: EmailPreviewProps) {
   const [preview, setPreview] = useState<{ html: string; plainText: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'html' | 'text'>('html');
 
   useEffect(() => {
-    if (templateId) {
+    if (template) {
       fetchPreview();
     }
-  }, [templateId, variables]);
+  }, [template, variables]);
 
   const fetchPreview = async () => {
+    if (!template) return;
+    
     setLoading(true);
     try {
-      const response = await fetch(`/api/template/${templateId}/render`, {
+      const response = await fetch('/api/template/render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variables }),
+        body: JSON.stringify({ template, variables }),
       });
 
       if (response.ok) {

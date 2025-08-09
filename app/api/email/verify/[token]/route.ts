@@ -35,7 +35,8 @@ export async function GET(
       );
     }
 
-    const template = templateStore.get(verification.templateId);
+    // Try to get template from verification data or from store
+    const template = (verification as any).templateData || templateStore.get(verification.templateId);
     if (!template) {
       return new NextResponse(
         `<!DOCTYPE html>
