@@ -6,7 +6,9 @@
       "Bash(curl:*)",
       "Bash(pkill:*)",
       "Bash(vercel:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "WebFetch(domain:easy-mailer-5ts85zemj-amohobans-projects.vercel.app)",
+      "Bash(gh repo create:*)"
     ],
     "deny": []
   }
