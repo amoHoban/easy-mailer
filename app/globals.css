@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /* Ensure buttons are always visible */
+  button {
+    @apply opacity-100;
+  }
+}
+
+@layer components {
+  /* Primary button - always visible with strong contrast */
+  .btn-primary {
+    @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 shadow-sm hover:shadow-md opacity-100;
+  }
+
+  /* Secondary button - clearly visible */
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 active:bg-gray-400 transition-all duration-200 shadow-sm hover:shadow-md opacity-100;
+  }
+}
