@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ProcessedTemplate } from '@/types';
+import GoogleDrivePicker from './GoogleDrivePicker';
 
 interface FileUploadProps {
   onTemplateProcessed: (template: Partial<ProcessedTemplate>) => void;
@@ -65,6 +66,44 @@ export default function FileUpload({ onTemplateProcessed }: FileUploadProps) {
     }
   };
 
+  const handleGoogleDriveFile = async (file: { content: string; name: string; mimeType: string }) => {
+    setError(null);
+    setIsUploading(true);
+
+    try {
+      // Convert base64 to blob
+      const byteCharacters = atob(file.content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: file.mimeType });
+      const fileObject = new File([blob], file.name, { type: file.mimeType });
+
+      // Upload as regular file
+      const formData = new FormData();
+      formData.append('file', fileObject);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to process file');
+      }
+
+      onTemplateProcessed(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to process Google Drive file');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="w-full">
       <div
@@ -122,6 +161,9 @@ export default function FileUpload({ onTemplateProcessed }: FileUploadProps) {
           </div>
         )}
       </div>
+
+      {/* Google Drive Picker */}
+      <GoogleDrivePicker onFileSelected={handleGoogleDriveFile} />
     </div>
   );
 }
