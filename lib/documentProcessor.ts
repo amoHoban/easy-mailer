@@ -58,33 +58,49 @@ export class DocumentProcessor {
   }
 
   private extractTextFromRTF(rtfContent: string): string {
-    // Basic RTF text extraction
-    // Remove RTF control words and groups
+    // Improved RTF text extraction for Mac and Windows RTF files
     let text = rtfContent;
     
-    // Remove RTF header
-    text = text.replace(/^{\\rtf1[^}]*}/, '');
+    // Remove RTF header and document properties
+    text = text.replace(/^{\s*\\rtf\d+[^}]*/, '');
     
-    // Remove RTF groups
-    text = text.replace(/{\\[^}]*}/g, '');
+    // Remove font table, color table, and other header definitions
+    text = text.replace(/{\\fonttbl[^}]*}/g, '');
+    text = text.replace(/{\\colortbl[^}]*}/g, '');
+    text = text.replace(/{\\\*\\expandedcolortbl[^}]*}/g, '');
+    text = text.replace(/{\\stylesheet[^}]*}/g, '');
+    text = text.replace(/{\\\*[^}]*}/g, ''); // Remove all optional groups
     
-    // Replace RTF line breaks with actual line breaks
+    // Remove paragraph formatting and other control sequences
+    text = text.replace(/\\pard[^\s\\]*/g, '');
+    text = text.replace(/\\tx\d+/g, '');
+    text = text.replace(/\\[a-z]+\d*\s*/gi, ''); // Remove control words with optional numeric parameter
+    
+    // Handle Mac RTF line breaks (backslash at end of line)
+    text = text.replace(/\\\s*\n/g, '\n');
+    text = text.replace(/\\\s*$/gm, '\n');
+    
+    // Handle Windows RTF line breaks
     text = text.replace(/\\par\s*/g, '\n');
     text = text.replace(/\\line\s*/g, '\n');
     
-    // Remove other RTF control words (start with backslash)
-    text = text.replace(/\\[a-z]+\d*\s?/gi, '');
-    
-    // Remove extra brackets
-    text = text.replace(/[{}]/g, '');
-    
-    // Replace RTF special characters
+    // Replace RTF special characters and Unicode
     text = text.replace(/\\'([0-9a-f]{2})/gi, (match, hex) => {
       return String.fromCharCode(parseInt(hex, 16));
     });
+    text = text.replace(/\\u(\d+)\??/g, (match, code) => {
+      return String.fromCharCode(parseInt(code));
+    });
     
-    // Clean up extra whitespace
-    text = text.replace(/\s+/g, ' ');
+    // Remove any remaining backslashes not part of special sequences
+    text = text.replace(/\\(.)/g, '$1');
+    
+    // Remove brackets
+    text = text.replace(/[{}]/g, '');
+    
+    // Clean up extra whitespace but preserve intentional line breaks
+    text = text.replace(/[ \t]+/g, ' '); // Replace multiple spaces/tabs with single space
+    text = text.replace(/\n{3,}/g, '\n\n'); // Replace 3+ newlines with 2
     text = text.trim();
     
     return text;
