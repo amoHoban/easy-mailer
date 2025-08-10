@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TemplateStorage } from '@/lib/storage';
+import { TemplateDB } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const template = await TemplateStorage.retrieve(params.id);
+    const template = await TemplateDB.retrieve(params.id);
 
     if (!template) {
       return NextResponse.json(

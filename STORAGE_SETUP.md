@@ -1,8 +1,8 @@
 # 🗄️ Storage Setup Guide for Easy Mailer
 
-The app now uses **short URLs** (8 characters) instead of long base64 strings to avoid Vercel routing issues.
+The app now uses **Neon PostgreSQL** with **short URLs** (8 characters) for reliable, scalable storage.
 
-## 📦 Storage Options
+## 🐘 Database Setup (Neon PostgreSQL)
 
 ### Option 1: Vercel KV (Recommended for Vercel)
 

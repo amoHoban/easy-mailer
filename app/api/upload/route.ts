@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentProcessor } from '@/lib/documentProcessor';
-import { TemplateStorage } from '@/lib/storage';
+import { TemplateDB } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
       file.name
     );
 
-    // Store template with short ID
-    const shortId = await TemplateStorage.store(processedTemplate);
+    // Store template in PostgreSQL with short ID
+    const shortId = await TemplateDB.store(processedTemplate);
     
     // Create shareable URL with short ID
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
